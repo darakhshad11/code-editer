@@ -3,18 +3,22 @@ import FileSaver from "file-saver";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { StreamLanguage } from '@codemirror/language';
-// import { cpp } from '@codemirror/legacy-modes/mode/cpp';
+
 import { python } from '@codemirror/legacy-modes/mode/python';
 import { javascript } from '@codemirror/legacy-modes/mode/javascript';
-import {cpp} from '@codemirror/lang-cpp';
-import {java} from '@codemirror/lang-java';
+
+
 import { loadLanguage, langs } from '@uiw/codemirror-extensions-langs';
 import { FaCopy, FaLock, FaUnlock, FaSave } from "react-icons/fa";
+
 
 const CodeEditor = () => {
   const [code, setCode] = useState("// Write your code here");
   const [isLocked, setLocked] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+
+
+  
   useEffect(() => {
     
     if (selectedLanguage in langs) {
@@ -41,6 +45,7 @@ const CodeEditor = () => {
 
   const handleLanguageChange = (language) => {
     setSelectedLanguage(language);
+    setCode("# Write your code here")
   };
 
   return (
@@ -83,8 +88,7 @@ const CodeEditor = () => {
           onChange={(e) => handleLanguageChange(e.target.value)}
           className="px-4 py-2 rounded-md bg-gray-200"
         >
-          <option value="cpp">C++</option>
-          <option value="java">Java</option>
+        
           <option value="python">Python</option>
           <option value="javascript">JavaScript</option>
         </select>
@@ -96,7 +100,10 @@ const CodeEditor = () => {
           width="100%"
           theme={vscodeDark}
           readOnly={isLocked} // Make it read-only when locked
-          extensions={[StreamLanguage.define(java)]}
+          
+          extensions={[
+            StreamLanguage.define({...selectedLanguage === "python" ? python : javascript})
+          ]}
           onChange={(value, viewUpdate) => {
             setCode(value);
           }}

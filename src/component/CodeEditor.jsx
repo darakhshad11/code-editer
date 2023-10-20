@@ -1,15 +1,26 @@
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import FileSaver from "file-saver";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import { javascript } from "@codemirror/lang-javascript";
-
+import { StreamLanguage } from '@codemirror/language';
+// import { cpp } from '@codemirror/legacy-modes/mode/cpp';
+import { python } from '@codemirror/legacy-modes/mode/python';
+import { javascript } from '@codemirror/legacy-modes/mode/javascript';
+import {cpp} from '@codemirror/lang-cpp';
+import {java} from '@codemirror/lang-java';
+import { loadLanguage, langs } from '@uiw/codemirror-extensions-langs';
 import { FaCopy, FaLock, FaUnlock, FaSave } from "react-icons/fa";
 
 const CodeEditor = () => {
   const [code, setCode] = useState("// Write your code here");
   const [isLocked, setLocked] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  useEffect(() => {
+    
+    if (selectedLanguage in langs) {
+      loadLanguage(selectedLanguage);
+    }
+  }, [selectedLanguage]);
 
   const handleCopy = () => {
     if (!isLocked) {
@@ -26,6 +37,10 @@ const CodeEditor = () => {
   const handleSave = () => {
     const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
     FileSaver.saveAs(blob, "myCodeFile.txt");
+  };
+
+  const handleLanguageChange = (language) => {
+    setSelectedLanguage(language);
   };
 
   return (
@@ -63,16 +78,27 @@ const CodeEditor = () => {
           <FaSave className="mr-2" />
           Save
         </button>
+        <select
+          value={selectedLanguage}
+          onChange={(e) => handleLanguageChange(e.target.value)}
+          className="px-4 py-2 rounded-md bg-gray-200"
+        >
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+          <option value="python">Python</option>
+          <option value="javascript">JavaScript</option>
+        </select>
       </div>
       <div className="codeeditor" id="coding">
         <CodeMirror
-          value="console.log('hello world!');"
+          value={code}
           height="500px"
-          width="800px"
+          width="100%"
           theme={vscodeDark}
-          extensions={[javascript({ jsx: true })]}
+          readOnly={isLocked} // Make it read-only when locked
+          extensions={[StreamLanguage.define(java)]}
           onChange={(value, viewUpdate) => {
-            console.log("value:", value);
+            setCode(value);
           }}
         />
       </div>
